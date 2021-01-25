@@ -16,6 +16,17 @@ class CharacterEnumeratorTest < Minitest::Test
     assert_equal "KIVI", CharacterEnumerator.integer_to_characters(200_000)
   end
 
+  def test_characters_to_integer_with_valid_arguments
+    assert_equal 0, CharacterEnumerator.characters_to_integer("A")
+    assert_equal 1, CharacterEnumerator.characters_to_integer("B")
+    assert_equal 25, CharacterEnumerator.characters_to_integer("Z")
+    assert_equal 26, CharacterEnumerator.characters_to_integer("AA")
+    assert_equal 27, CharacterEnumerator.characters_to_integer("AB")
+    assert_equal 51, CharacterEnumerator.characters_to_integer("AZ")
+    assert_equal 52, CharacterEnumerator.characters_to_integer("BA")
+    assert_equal 200000, CharacterEnumerator.characters_to_integer("KIVI")
+  end
+
   def test_integer_to_characters_with_negative_values
     error = assert_raises(ArgumentError) do
       CharacterEnumerator.integer_to_characters(-1)
@@ -28,6 +39,20 @@ class CharacterEnumeratorTest < Minitest::Test
       CharacterEnumerator.integer_to_characters(1.0)
     end
     assert_equal "Value must be integer", error.message
+  end
+
+  def test_characters_to_integer_with_empty_values
+    error = assert_raises(ArgumentError) do
+      CharacterEnumerator.characters_to_integer("")
+    end
+    assert_equal "Value must contain at least one character", error.message
+  end
+
+  def test_characters_to_integer_with_non_string_values
+    error = assert_raises(ArgumentError) do
+      CharacterEnumerator.characters_to_integer(1.0)
+    end
+    assert_equal "Value must be string", error.message
   end
 
   def test_generate_with_zero
