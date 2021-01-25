@@ -2,6 +2,9 @@ require "character_enumerator/version"
 
 module CharacterEnumerator
   module Implementation
+    VALID_CHARACTERS_REGEXP = /\A[A-Z]+\z/
+    BLANK_STRING_REGEXP = /\A[[:space:]]*\z/
+
     def generate(size)
       Enumerator.new(size) do |y|
         size.times do |index|
@@ -16,10 +19,22 @@ module CharacterEnumerator
       internal_integer_to_characters(value)
     end
 
-    def characters_to_integer(value)
-      raise ArgumentError, "Value must be string" unless value.is_a?(String)
-      raise ArgumentError, "Value must contain at least one character" if value.length < 1
-      internal_characters_to_integer(value)
+    def characters_to_integer(characters)
+      raise ArgumentError, "argument must be string" unless characters.is_a?(String)
+      is_blank =\
+        if characters.respond_to?(:blank?)
+          characters.blank?
+        else
+          characters.match?(BLANK_STRING_REGEXP)
+        end
+      return nil if is_blank
+      raise ArgumentError, "argument must be string matching regexp: #{VALID_CHARACTERS_REGEXP.inspect}" unless characters.match?(VALID_CHARACTERS_REGEXP)
+      result = 0
+      characters.unpack("C*") do |number|
+        result *= 26
+        result += number - 64
+      end
+      result - 1
     end
 
     private
@@ -33,16 +48,6 @@ module CharacterEnumerator
         dividend = (dividend - modulo) / 26
       end
       result.pack("C*")
-    end
-
-    def internal_characters_to_integer(value)
-      result = 0
-      while value.length > 0
-        result *= 26
-        result += ((value[0].ord - 65) + 1)
-        value = value[1..-1]
-      end
-      result - 1
     end
   end
 

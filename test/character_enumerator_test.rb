@@ -41,18 +41,22 @@ class CharacterEnumeratorTest < Minitest::Test
     assert_equal "Value must be integer", error.message
   end
 
-  def test_characters_to_integer_with_empty_values
-    error = assert_raises(ArgumentError) do
-      CharacterEnumerator.characters_to_integer("")
-    end
-    assert_equal "Value must contain at least one character", error.message
+  def test_characters_to_integer_with_empty_string
+    assert_nil CharacterEnumerator.characters_to_integer("")
   end
 
   def test_characters_to_integer_with_non_string_values
     error = assert_raises(ArgumentError) do
       CharacterEnumerator.characters_to_integer(1.0)
     end
-    assert_equal "Value must be string", error.message
+    assert_equal "argument must be string", error.message
+  end
+
+  def test_characters_to_integer_with_invalid_characters
+    error = assert_raises(ArgumentError) do
+      CharacterEnumerator.characters_to_integer("A123$")
+    end
+    assert_equal "argument must be string matching regexp: /\\A[A-Z]+\\z/", error.message
   end
 
   def test_generate_with_zero
